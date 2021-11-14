@@ -6,8 +6,11 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
+import com.wainow.tp_lab_2.data.db.DBHelper
 import com.wainow.tp_lab_2.domain.*
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.withContext
 import java.lang.Exception
 
 class MainViewModel : ViewModel() {
@@ -24,7 +27,7 @@ class MainViewModel : ViewModel() {
     fun createUser(isNew: Boolean = true): User {
         val user = interactor.createUser()
         if(!isNew) {
-            user.name = userLiveData.value?.name.toString()
+            user.id = userLiveData.value?.id!!
             user.result = userLiveData.value?.result.toString()
         }
         userLiveData.value = user.copy()
@@ -87,7 +90,7 @@ class MainViewModel : ViewModel() {
 
     fun getEnemyResultString(): String {
         val game = getGame()
-        val enemy: User? = if(userLiveData.value?.name == game?.user1?.name) {
+        val enemy: User? = if(userLiveData.value?.id == game?.user1?.id) {
             game?.user2
         } else {
             game?.user1
@@ -102,7 +105,10 @@ class MainViewModel : ViewModel() {
                 val userJson = Gson().toJson(user)
                 Log.d("DebugLogs", "userJson: $userJson")
                 try {
-                    result = interactor.addUser(userJson)
+                    withContext(Dispatchers.IO) {
+                        interactor.saveUser(user)
+                    }
+                    result = interactor.sendUser(userJson)
                 } catch (e: Exception) {
                     Log.e("Error", e.printStackTrace().toString())
                 }
@@ -119,6 +125,11 @@ class MainViewModel : ViewModel() {
                 game = interactor.getGame()
             } catch (e: Exception) {
                 Log.e("Error", e.printStackTrace().toString())
+            }
+            if(game == null) {
+                withContext(Dispatchers.IO) {
+                    game = interactor.getLocalGame()
+                }
             }
         }
         return game

@@ -1,4 +1,4 @@
-package com.wainow.tp_lab_2.data
+package com.wainow.tp_lab_2.data.api
 
 import com.wainow.tp_lab_2.domain.Game
 import com.wainow.tp_lab_2.domain.User

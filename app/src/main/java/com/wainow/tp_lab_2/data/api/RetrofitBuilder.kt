@@ -1,4 +1,4 @@
-package com.wainow.tp_lab_2.data
+package com.wainow.tp_lab_2.data.api
 
 import com.google.gson.GsonBuilder
 import retrofit2.Retrofit

@@ -10,13 +10,10 @@ import android.widget.Button
 import android.widget.TextView
 import android.widget.Toast
 import com.wainow.tp_lab_2.R
+import com.wainow.tp_lab_2.data.db.DBHelper
 import com.wainow.tp_lab_2.domain.User
 
 class MainFragment : Fragment() {
-    // TODO:
-    //  2) добавить использование available...
-    //  3) взаимодействие с сервером
-    //  4) отображение вражеских цифр
 
     companion object {
         fun newInstance() = MainFragment()
@@ -73,6 +70,7 @@ class MainFragment : Fragment() {
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
         viewModel = ViewModelProvider(this).get(MainViewModel::class.java)
+        context?.let { DBHelper.init(it) }
         btnStart.setOnClickListener {
             if(!viewModel.isInitialized) initUser()
             val result = viewModel.sendResult()
@@ -97,7 +95,10 @@ class MainFragment : Fragment() {
         viewModel.stringResultLiveData.observeForever {
             viewModel.userLiveData.value?.result = viewModel.getResultString()
             viewModel.userLiveData.value?.currentNumber = viewModel.resultLiveData.value ?: 0
-            message.text = viewModel.getResultString()
+            if(!viewModel.stringResultLiveData.value.isNullOrEmpty())
+                message.text = viewModel.getResultString()
+            else
+                message.text = ""
             if(viewModel.isInitialized && !viewModel.isWaiting) {
                 enemyMessage.text = viewModel.getEnemyResultString()
             }
