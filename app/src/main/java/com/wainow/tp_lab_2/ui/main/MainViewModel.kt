@@ -122,12 +122,14 @@ class MainViewModel : ViewModel() {
         var game: Game? = null
         runBlocking {
             try {
+                Log.d("DebugLogs", "getGame")
                 game = interactor.getGame()
             } catch (e: Exception) {
                 Log.e("Error", e.printStackTrace().toString())
             }
             if(game == null) {
                 withContext(Dispatchers.IO) {
+                    Log.d("DebugLogs", "getLocalGame")
                     game = interactor.getLocalGame()
                 }
             }
